@@ -1,15 +1,5 @@
-input.onLogoEvent(TouchButtonEvent.Pressed, function () {
-    if (weaponPower < 5) {
-        energyPower += 1
-        weaponPower += -1
-        led.plotBarGraph(
-        energyPower,
-        5
-        )
-        serial.writeLine("er:" + energyPower)
-        serial.writeLine("wr:" + weaponPower)
-    }
-})
+
+
 let avgloop = 0
 let avgmag = 0
 let avgcount = 0
@@ -24,15 +14,13 @@ let BPressed = 0
 let energyPower = 0
 let weaponPower = 0
 let TouchPressed = 0
+let shieldActive = 0
 let lastheading = -1
 let currentHeading = -1
 weaponPower = 3
 energyPower = 3
 radio.setGroup(24)
-led.plotBarGraph(
-energyPower,
-5
-)
+
 basic.forever(function () {
     if (BPressed == 0 && input.buttonIsPressed(Button.B)) {
         BPressed = 1
@@ -80,4 +68,22 @@ basic.forever(function () {
         }
     }
     lastheading = currentHeading
+})
+
+input.onPinPressed(TouchPin.P2, function () {
+    if (shieldActive == 0) {
+        shieldActive = 1
+        radio.sendString("s:1")
+    } else {
+        shieldActive = 0
+        radio.sendString("s:0")
+    }
+})
+
+radio.onReceivedString(function(receivedString: string) {
+    let splitString = receivedString.split(":")
+    if (receivedString.charAt(0) == 'e'){
+        music.playTone(Note.C, music.beat(BeatFraction.Sixteenth))
+        led.plotBarGraph(parseInt(splitString[1]),400)
+    }
 })
