@@ -1,5 +1,5 @@
 
-
+let alive = 1
 let avgloop = 0
 let avgmag = 0
 let avgcount = 0
@@ -70,7 +70,7 @@ basic.forever(function () {
     lastheading = currentHeading
 })
 
-input.onPinPressed(TouchPin.P2, function () {
+input.onButtonPressed(Button.AB, function () {
     if (shieldActive == 0) {
         shieldActive = 1
         radio.sendString("s:1")
@@ -82,7 +82,18 @@ input.onPinPressed(TouchPin.P2, function () {
 
 radio.onReceivedString(function(receivedString: string) {
     let splitString = receivedString.split(":")
-    if (receivedString.charAt(0) == 'e'){
+    if (splitString[0] == 'a') {
+        let newalive = parseInt(splitString[1])
+        if (newalive == 0 && alive == 1) {
+            alive = 0
+            basic.showIcon(IconNames.Skull)
+        }
+        if (newalive == 1 && alive == 0) {
+            led.plotBarGraph(400, 400)
+            alive = 1
+        }
+    }
+    if (receivedString.charAt(0) == 'e' && alive == 1){
         music.playTone(Note.C, music.beat(BeatFraction.Sixteenth))
         led.plotBarGraph(parseInt(splitString[1]),400)
     }
